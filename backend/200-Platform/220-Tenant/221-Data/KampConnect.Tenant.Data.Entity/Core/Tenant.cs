@@ -19,7 +19,7 @@ public class Tenant
 
     [Required]
     public required string tenant_status { get; set; }
-
+    
     public string? primary_email { get; set; }
 
     public string? primary_phone { get; set; }

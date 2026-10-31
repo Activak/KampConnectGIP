@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
-using KampConnect.Tenant.Data.Entity.Core;
 
 namespace KampConnect.Tenant.Data.Context.Implentation;
 

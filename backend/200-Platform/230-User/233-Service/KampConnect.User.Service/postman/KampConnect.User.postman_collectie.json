@@ -1,0 +1,183 @@
+{
+  "info": {
+    "_postman_id": "a1f3c9e2-5b7d-4c18-8e2a-kcusercol00001",
+    "name": "KampConnect User Service",
+    "description": "Requests voor de User-service.\n\n1. Importeer deze collectie en de environment uit backend/postman.\n2. Start de Identity-service en de User-service.\n3. Selecteer de environment \"KampConnect - Local\" in Postman.\n4. Haal een token op via de collectie > tabblad Authorization > \"Get New Access Token\".",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "oauth2",
+    "oauth2": [
+      {
+        "key": "grant_type",
+        "value": "authorization_code_with_pkce",
+        "type": "string"
+      },
+      {
+        "key": "authUrl",
+        "value": "{{identityHost}}/oauth2/authorize",
+        "type": "string"
+      },
+      {
+        "key": "accessTokenUrl",
+        "value": "{{identityHost}}/oauth2/token",
+        "type": "string"
+      },
+      {
+        "key": "clientId",
+        "value": "{{clientId}}",
+        "type": "string"
+      },
+      {
+        "key": "scope",
+        "value": "{{scope}}",
+        "type": "string"
+      },
+      {
+        "key": "redirect_uri",
+        "value": "{{callbackUrl}}",
+        "type": "string"
+      },
+      {
+        "key": "challengeAlgorithm",
+        "value": "S256",
+        "type": "string"
+      },
+      {
+        "key": "addTokenTo",
+        "value": "header",
+        "type": "string"
+      },
+      {
+        "key": "client_authentication",
+        "value": "body",
+        "type": "string"
+      },
+      {
+        "key": "tokenName",
+        "value": "KampConnect User",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "User",
+      "item": [
+        {
+          "name": "Gebruiker aanmaken (met token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Verwacht: 200 bij eerste aanmaak, 409 als het profiel al bestaat.",
+                  "pm.test('Status is 200 of 409', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 409]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Test\",\n  \"lastName\": \"Gebruiker\",\n  \"birthDate\": \"2005-01-01\",\n  \"preferredLanguage\": \"nl\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{userHost}}/api/user/create",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "user", "create" ]
+            },
+            "description": "Maakt het gebruikersprofiel aan voor de ingelogde gebruiker (sub-claim uit het token)."
+          }
+        },
+        {
+          "name": "Huidige gebruiker (met token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Verwacht: 200 als het profiel bestaat, 404 als het nog niet aangemaakt is.",
+                  "pm.test('Status is 200 of 404', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userHost}}/api/user/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "user", "me" ]
+            },
+            "description": "Gebruikt de OAuth2-instellingen van de collectie."
+          }
+        },
+        {
+          "name": "Huidige gebruiker (met bewaarde accessToken)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userHost}}/api/user/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "user", "me" ]
+            },
+            "description": "Plak een access token in de environment-variabele {{accessToken}}."
+          }
+        },
+        {
+          "name": "Huidige gebruiker (zonder token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Zonder token: 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userHost}}/api/user/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "user", "me" ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

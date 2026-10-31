@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\KampConnect.User.Data.Entity\KampConnect.User.Data.Entity.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Implentation\" />
+    <ProjectReference Include="..\KampConnect.User.Data.Entity\KampConnect.User.Data.Entity.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <UserSecretsId>3de42e47-c2ce-44ab-b2ec-080f22f5548f</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\232-Business\KampConnect.User.Business.Logic\KampConnect.User.Business.Logic.csproj" />
     <ProjectReference Include="..\..\232-Business\KampConnect.User.Business.Contracts\KampConnect.User.Business.Contracts.csproj" />

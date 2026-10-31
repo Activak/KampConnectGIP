@@ -3,7 +3,6 @@ using KampConnect.Shared.ServiceDefaults.Authentication;
 using KampConnect.Shared.ServiceDefaults.Cors;
 using KampConnect.Shared.ServiceDefaults.Messaging;
 using KampConnect.Tenant.Data.Context.Implentation;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

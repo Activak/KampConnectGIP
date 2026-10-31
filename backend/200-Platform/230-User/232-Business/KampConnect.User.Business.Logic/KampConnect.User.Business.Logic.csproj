@@ -1,5 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="MassTransit" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\KampConnect.User.Business.Contracts\KampConnect.User.Business.Contracts.csproj" />
     <ProjectReference Include="..\..\231-Data\KampConnect.User.Data.Interface\KampConnect.User.Data.Interface.csproj" />
     <ProjectReference Include="..\..\231-Data\KampConnect.User.Data.Entity\KampConnect.User.Data.Entity.csproj" />
