@@ -1,5 +1,4 @@
-
-using KampConnect.User.Business.Contracts.ClassTypes;
+using KampConnect.User.Business.Contracts.ClassTypes.Dtos;
 
 namespace KampConnect.User.Business.Logic.Mapping;
 

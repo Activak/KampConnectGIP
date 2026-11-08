@@ -14,6 +14,10 @@
     <Project Path="000-Shared/020-Helpers/021-Logging/KampConnect.Shared.Logging.Config/KampConnect.Shared.Logging.Config.csproj" Id="63af94b9-6ce6-43c0-ab68-8a2465d6f53c" />
     <Project Path="000-Shared/020-Helpers/021-Logging/KampConnect.Shared.Logging.Core/KampConnect.Shared.Logging.Core.csproj" Id="e60da555-1a07-407b-9716-2ed856a49926" />
   </Folder>
+  <Folder Name="/000-Shared/020-Helpers/022-Infrastructure/">
+    <Project Path="000-Shared/020-Helpers/022-Infrastructure/KampConnect.Shared.Infrastructure.Contracts/KampConnect.Shared.Infrastructure.Contracts.csproj" />
+    <Project Path="000-Shared/020-Helpers/022-Infrastructure/KampConnect.Shared.Infrastructure.Google/KampConnect.Shared.Infrastructure.Google.csproj" />
+  </Folder>
   <Folder Name="/100-Gateway/">
     <Project Path="100-Gateway/KampConnect.Gateway/KampConnect.Gateway.csproj" />
   </Folder>

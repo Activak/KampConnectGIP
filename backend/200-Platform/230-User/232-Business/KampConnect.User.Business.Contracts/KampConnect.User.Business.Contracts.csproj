@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\000-Shared\020-Helpers\022-Infrastructure\KampConnect.Shared.Infrastructure.Google\KampConnect.Shared.Infrastructure.Google.csproj" />
     <ProjectReference Include="..\..\231-Data\KampConnect.User.Data.Entity\KampConnect.User.Data.Entity.csproj" />
   </ItemGroup>
 </Project>

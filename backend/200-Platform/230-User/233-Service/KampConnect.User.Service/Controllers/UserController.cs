@@ -1,5 +1,5 @@
 using KampConnect.Shared.Contracts.Authorization;
-using KampConnect.User.Business.Contracts.ClassTypes;
+using KampConnect.User.Business.Contracts.ClassTypes.Results;
 using KampConnect.User.Business.Contracts.Interfaces;
 using KampConnect.User.Business.Contracts.Requests;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +35,7 @@ public class UserController(IUserService userService) : ControllerBase
         return Ok(userResult.User);
     }
     #endregion
+
     #region CreateUser
     [Authorize(Policy = AuthorizationConstants.RequiresAuthenticationPolicy)]
     [HttpPost("create")]

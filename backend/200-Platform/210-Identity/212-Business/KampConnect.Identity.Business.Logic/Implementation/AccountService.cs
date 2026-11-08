@@ -4,6 +4,7 @@ using KampConnect.Identity.Business.Contracts.Constants;
 using KampConnect.Identity.Business.Contracts.Interfaces;
 using KampConnect.Identity.Business.Contracts.Requests;
 using KampConnect.Identity.Business.Logic.Helpers;
+using KampConnect.Identity.Data.Entity.Tenant.Invitations;
 using KampConnect.Identity.Data.Entity.Users;
 using KampConnect.Identity.Data.Interface.Repository;
 using Microsoft.AspNetCore.Identity;
@@ -22,6 +23,8 @@ namespace KampConnect.Identity.Business.Logic.Implementation;
 public class AccountService(
     IUserRepository userRepository,
     IUserTokenRepository tokenRepository,
+    ITenantInvitationRepository tenantInvitationRepository,
+    IUserRoleRepository userRoleRepository,
     IPasswordHasher<User> passwordHasher,
     IIdentityMailSender mailSender,
     ISessionRevoker sessionRevoker,
@@ -50,8 +53,26 @@ public class AccountService(
             return AccountResult.Fail(AccountError.EmailInUse);
         }
 
-        // 3. Gebruiker aanmaken. Enkel de login: naam, adres, … beheert de User-service.
+        // 2b. Uitnodigingstoken meegegeven? Dan moet het geldig zijn en bij dit e-mailadres horen.
         var now = DateTime.UtcNow;
+        TenantInvitation? invitation = null;
+        if (!string.IsNullOrWhiteSpace(request.InvitationToken))
+        {
+            invitation = await tenantInvitationRepository.GetInvitationByTokenHashAsync(SecureToken.Hash(request.InvitationToken), ct);
+            if (invitation is null || !InvitationRules.IsUsable(invitation, now))
+            {
+                return AccountResult.Fail(AccountError.InvalidToken);
+            }
+            if (!InvitationRules.MatchesEmail(invitation, normalized))
+            {
+                return AccountResult.Invalid(new Dictionary<string, string[]>
+                {
+                    { "invitationToken", ["Deze uitnodiging is voor een ander e-mailadres."] }
+                });
+            }
+        }
+
+        // 3. Gebruiker aanmaken. Enkel de login: naam, adres, … beheert de User-service.
         var user = new User
         {
             username = email,
@@ -64,31 +85,42 @@ public class AccountService(
         user.password_hash = passwordHasher.HashPassword(user, request.Password);
         userRepository.Add(user);
 
-        // 4. Verificatietoken aanmaken (hoort bij de nieuwe gebruiker via de navigatie-property,
-        //    EF vult user_id zelf in bij het bewaren).
-        var (token, hash) = SecureToken.Create();
-        user.UserTokens.Add(new UserToken
+        string? verificationToken = null;
+        if (invitation is not null)
         {
-            user_id = Guid.Empty, // wordt door EF ingevuld via de relatie
-            token_hash = hash,
-            token_purpose = UserTokenPurposes.EmailVerification,
-            expiration_timestamp = now.AddHours(_settings.EmailVerificationLifetimeHours),
-            creation_timestamp = now
-        });
+            // 4a. Uitnodiging: de link kwam via mail, dus het e-mailadres is meteen bevestigd.
+            //     De rol + tenant uit de uitnodiging worden gekoppeld (sec_user_role).
+            user.email_verified_timestamp = now;
+            userRoleRepository.Add(InvitationRules.Accept(invitation, user.user_id, now));
+        }
+        else
+        {
+            // 4b. Verificatietoken aanmaken (hoort bij de nieuwe gebruiker via de navigatie-property,
+            //     EF vult user_id zelf in bij het bewaren).
+            var (token, hash) = SecureToken.Create();
+            verificationToken = token;
+            user.UserTokens.Add(new UserToken
+            {
+                user_id = Guid.Empty, // wordt door EF ingevuld via de relatie
+                token_hash = hash,
+                token_purpose = UserTokenPurposes.EmailVerification,
+                expiration_timestamp = now.AddHours(_settings.EmailVerificationLifetimeHours),
+                creation_timestamp = now
+            });
+        }
 
         // 5. Alles in één transactie bewaren
         await userRepository.SaveChangesAsync(ct);
 
-        // TODO (Tenant-service): request.InvitationToken doorgeven zodat de rol + organisatie
-        //      uit de uitnodiging gekoppeld worden (sec_user_role). Tot dan heeft een nieuw
-        //      account nog geen rollen.
-        if (!string.IsNullOrWhiteSpace(request.InvitationToken))
-        {
-            logger.LogInformation("Gebruiker {UserId} registreerde met een uitnodigingstoken (koppeling volgt via Tenant-service)", user.user_id);
-        }
-
         // 6. Verificatiemail versturen (na het bewaren: het token moet bestaan als de gebruiker klikt)
-        await SendVerificationMailAsync(email, token, ct);
+        if (verificationToken is not null)
+        {
+            await SendVerificationMailAsync(email, verificationToken, ct);
+        }
+        else
+        {
+            logger.LogInformation("Gebruiker {UserId} registreerde via uitnodiging {InvitationId}", user.user_id, invitation!.tenant_invitation_id);
+        }
 
         logger.LogInformation("Account {UserId} aangemaakt", user.user_id);
         return AccountResult.Ok(user.user_id);

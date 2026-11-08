@@ -1,10 +1,10 @@
 using KampConnect.User.Data.Entity.User;
 
-namespace KampConnect.User.Business.Contracts.ClassTypes;
+namespace KampConnect.User.Business.Contracts.ClassTypes.Dtos;
 
 public record UserDto(
     Guid UserId,
-    Guid AuthUserId,
+    Guid? AuthUserId,
     string FirstName,
     string LastName,
     string BirthDate,

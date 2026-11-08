@@ -7,6 +7,8 @@ public static class AuthorizationConstants
 {
     public const string RequiresTenantPolicy = "RequiresTenant";
 
+    public const string RequiresTenantAdminPolicy = "RequiresTenantAdmin";
+
     public const string RequiresPlatformAdminPolicy = "RequiresPlatformAdmin";
 
     public const string RequiresAuthenticationPolicy = "RequiresAuthentication";

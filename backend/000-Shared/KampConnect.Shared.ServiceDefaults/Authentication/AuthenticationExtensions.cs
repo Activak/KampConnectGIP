@@ -19,6 +19,11 @@ public static class AuthenticationExtensions
                 policy.RequireAuthenticatedUser();
                 policy.RequireClaim(KampConnectClaimTypes.TenantId);
             });
+            options.AddPolicy(AuthorizationConstants.RequiresTenantAdminPolicy, policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireClaim(KampConnectClaimTypes.Roles, RoleCodes.TenantAdmin);
+            });
             options.AddPolicy(AuthorizationConstants.RequiresPlatformAdminPolicy, policy =>
             {
                 policy.RequireAuthenticatedUser();

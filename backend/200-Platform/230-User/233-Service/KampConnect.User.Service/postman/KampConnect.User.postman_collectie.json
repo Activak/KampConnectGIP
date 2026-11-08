@@ -178,6 +178,701 @@
           }
         }
       ]
+    },
+    {
+      "name": "Address",
+      "description": "Adressen van de ingelogde gebruiker. Het gebruikersprofiel moet eerst aangemaakt zijn (User > Gebruiker aanmaken).\n\naddressType: 0 = Home, 1 = Other.\n\nElk nieuw adres wordt geverifieerd via de Google Address Validation API. Het adres wordt altijd opgeslagen. Bevestigt Google het adres niet (of is Google onbereikbaar), dan bevat verificationMessage de reden.",
+      "item": [
+        {
+          "name": "Adres toevoegen (bestaand adres)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Verwacht: 200 en een door Google bevestigd adres.",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Adres is gevalideerd (geen verificationMessage)', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.succeeded).to.be.true;",
+                  "    pm.expect(json.verificationMessage).to.be.oneOf([null, '']);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressType\": 0,\n  \"street\": \"Grote Markt\",\n  \"houseNumber\": \"1\",\n  \"box\": \"\",\n  \"postalCode\": \"1000\",\n  \"city\": \"Brussel\",\n  \"countryCode\": \"BE\",\n  \"isPrimary\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{userHost}}/api/address/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "address", "me" ]
+            },
+            "description": "Voegt een adres toe voor de ingelogde gebruiker. Google normaliseert de waarden (bv. schrijfwijze van de straat)."
+          }
+        },
+        {
+          "name": "Adres toevoegen (onbestaand adres)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Verwacht: 200, adres opgeslagen maar niet gevalideerd.",
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Adres is niet gevalideerd en heeft een boodschap', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.succeeded).to.be.true;",
+                  "    pm.expect(json.verificationMessage).to.be.a('string').and.not.be.empty;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressType\": 1,\n  \"street\": \"Onbestaandestraat\",\n  \"houseNumber\": \"9999\",\n  \"box\": \"\",\n  \"postalCode\": \"9999\",\n  \"city\": \"Nergensdorp\",\n  \"countryCode\": \"BE\",\n  \"isPrimary\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{userHost}}/api/address/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "address", "me" ]
+            },
+            "description": "Een adres dat Google niet kan bevestigen. Wordt toch opgeslagen, met een verificationMessage in de response."
+          }
+        },
+        {
+          "name": "Adres toevoegen (zonder token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Zonder token: 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"addressType\": 0,\n  \"street\": \"Grote Markt\",\n  \"houseNumber\": \"1\",\n  \"box\": \"\",\n  \"postalCode\": \"1000\",\n  \"city\": \"Brussel\",\n  \"countryCode\": \"BE\",\n  \"isPrimary\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{userHost}}/api/address/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "address", "me" ]
+            }
+          }
+        },
+        {
+          "name": "Adressen ophalen (met token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userHost}}/api/address/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "address", "me" ]
+            },
+            "description": "Haalt alle adressen van de ingelogde gebruiker op."
+          }
+        },
+        {
+          "name": "Adressen ophalen (zonder token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Zonder token: 401 Unauthorized', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{userHost}}/api/address/me",
+              "host": [ "{{userHost}}" ],
+              "path": [ "api", "address", "me" ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Family",
+      "description": "Gezinnen van de ingelogde gebruiker. Het gebruikersprofiel moet eerst aangemaakt zijn (User > Gebruiker aanmaken).\n\nVoer \"Gezin aanmaken\" eerst uit: die bewaart {{familyId}} als collectievariabele. \"Leden ophalen\", \"Kind toevoegen\" en \"Uitnodiging aanmaken\" bewaren respectievelijk {{memberId}}, {{inviteId}} en {{inviteCode}}.\n\nroleType: 1 = guardian, 2 = child.\nstatus: 1 = pending, 2 = active, 3 = rejected, 4 = removed.",
+      "item": [
+        {
+          "name": "Gezinnen",
+          "item": [
+            {
+              "name": "Gezin aanmaken",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 201', function () {",
+                      "    pm.response.to.have.status(201);",
+                      "});",
+                      "",
+                      "const json = pm.response.json();",
+                      "if (json && json.familyId) {",
+                      "    pm.collectionVariables.set('familyId', json.familyId);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Familie Test\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{userHost}}/api/family",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family" ]
+                },
+                "description": "Maakt een nieuw gezin aan met de ingelogde gebruiker als guardian."
+              }
+            },
+            {
+              "name": "Gezinnen ophalen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family" ]
+                },
+                "description": "Haalt alle gezinnen van de ingelogde gebruiker op."
+              }
+            },
+            {
+              "name": "Gezin ophalen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}" ]
+                }
+              }
+            },
+            {
+              "name": "Gezin aanpassen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Familie Test (aangepast)\",\n  \"inviteEnabled\": true\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}" ]
+                },
+                "description": "Beide velden zijn optioneel."
+              }
+            },
+            {
+              "name": "Gezinnen ophalen (zonder token)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Zonder token: 401 Unauthorized', function () {",
+                      "    pm.response.to.have.status(401);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "auth": { "type": "noauth" },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family" ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "Leden",
+          "item": [
+            {
+              "name": "Kind toevoegen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "const json = pm.response.json();",
+                      "if (json && json.familyMemberId) {",
+                      "    pm.collectionVariables.set('memberId', json.familyMemberId);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"firstName\": \"Kind\",\n  \"lastName\": \"Test\",\n  \"birthDate\": \"2015-06-15\",\n  \"preferredLanguage\": \"nl\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/children",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "children" ]
+                },
+                "description": "Voegt een kind toe aan het gezin en bewaart {{memberId}}."
+              }
+            },
+            {
+              "name": "Leden ophalen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/members",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "members" ]
+                }
+              }
+            },
+            {
+              "name": "Wachtende leden ophalen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "// Bewaar het eerste wachtende lid om goed te keuren of te weigeren",
+                      "const json = pm.response.json();",
+                      "if (Array.isArray(json) && json.length > 0) {",
+                      "    pm.collectionVariables.set('memberId', json[0].familyMemberId);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/members?status=1",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "members" ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "1",
+                      "description": "1 = pending, 2 = active, 3 = rejected, 4 = removed"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Lid aanpassen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"role\": 1,\n  \"isPrimaryContact\": false\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/members/{{memberId}}",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "members", "{{memberId}}" ]
+                },
+                "description": "role: 1 = guardian, 2 = child. Beide velden zijn optioneel."
+              }
+            },
+            {
+              "name": "Lid goedkeuren",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/members/{{memberId}}/approve",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "members", "{{memberId}}", "approve" ]
+                }
+              }
+            },
+            {
+              "name": "Lid weigeren",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/members/{{memberId}}/reject",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "members", "{{memberId}}", "reject" ]
+                }
+              }
+            },
+            {
+              "name": "Lid verwijderen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 204', function () {",
+                      "    pm.response.to.have.status(204);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/members/{{memberId}}",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "members", "{{memberId}}" ]
+                }
+              }
+            },
+            {
+              "name": "Gezin vervoegen (met code)",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "// Verwacht: 202 Accepted, het lid wacht op goedkeuring. 429 bij te veel pogingen.",
+                      "pm.test('Status is 202', function () {",
+                      "    pm.response.to.have.status(202);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"code\": \"{{inviteCode}}\"\n}",
+                  "options": { "raw": { "language": "json" } }
+                },
+                "url": {
+                  "raw": "{{userHost}}/api/family/join",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "join" ]
+                },
+                "description": "Voer uit met een token van een andere gebruiker dan de eigenaar van het gezin. Rate limited."
+              }
+            }
+          ]
+        },
+        {
+          "name": "Uitnodigingen",
+          "item": [
+            {
+              "name": "Uitnodiging aanmaken",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});",
+                      "",
+                      "const json = pm.response.json();",
+                      "if (json) {",
+                      "    pm.collectionVariables.set('inviteId', json.familyInviteId);",
+                      "    pm.collectionVariables.set('inviteCode', json.code);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/invites",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "invites" ]
+                },
+                "description": "Maakt een uitnodigingscode aan en bewaart {{inviteId}} en {{inviteCode}}."
+              }
+            },
+            {
+              "name": "Actieve uitnodigingen ophalen",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "    pm.response.to.have.status(200);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/invites",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "invites" ]
+                }
+              }
+            },
+            {
+              "name": "Uitnodiging intrekken",
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "pm.test('Status is 204', function () {",
+                      "    pm.response.to.have.status(204);",
+                      "});"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ],
+              "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{userHost}}/api/family/{{familyId}}/invites/{{inviteId}}",
+                  "host": [ "{{userHost}}" ],
+                  "path": [ "api", "family", "{{familyId}}", "invites", "{{inviteId}}" ]
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
+  ],
+  "variable": [
+    { "key": "familyId", "value": "" },
+    { "key": "memberId", "value": "" },
+    { "key": "inviteId", "value": "" },
+    { "key": "inviteCode", "value": "" }
   ]
 }

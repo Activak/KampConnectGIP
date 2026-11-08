@@ -240,6 +240,78 @@
           }
         }
       ]
+    },
+    {
+      "name": "Invitations",
+      "description": "Vereist een access token van een gebruiker met de TenantAdmin-policy. Haal eerst een token op via de map \"OAuth2 - Login flow\" zodat {{accessToken}} gevuld is.",
+      "item": [
+        {
+          "name": "Uitnodiging aanmaken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [ { "key": "token", "value": "{{accessToken}}", "type": "string" } ]
+            },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenantId\": {{tenantId}},\n  \"email\": \"{{inviteEmail}}\",\n  \"roleId\": {{roleId}}\n}"
+            },
+            "url": {
+              "raw": "{{identityHost}}/api/invitations/create",
+              "host": [ "{{identityHost}}" ],
+              "path": [ "api", "invitations", "create" ]
+            },
+            "description": "Maakt een uitnodiging aan voor het opgegeven e-mailadres binnen de tenant met de gekozen rol. De uitnodigingsmail staat in de console-log van de service (LoggingMailSender); kopieer het token naar de variabele invitationToken."
+          }
+        },
+        {
+          "name": "Registreren met uitnodiging",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{inviteEmail}}\",\n  \"password\": \"{{testPassword}}\",\n  \"invitationToken\": \"{{invitationToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{identityHost}}/api/account/register",
+              "host": [ "{{identityHost}}" ],
+              "path": [ "api", "account", "register" ]
+            }
+          }
+        }
+      ]
     }
+  ],
+  "variable": [
+    { "key": "tenantId", "value": "1", "type": "string" },
+    { "key": "roleId", "value": "1", "type": "string" },
+    { "key": "inviteEmail", "value": "uitgenodigd@kampconnect.local", "type": "string" },
+    { "key": "invitationToken", "value": "", "type": "string" }
   ]
 }

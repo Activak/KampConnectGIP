@@ -13,6 +13,9 @@ public class UserRoleRepository(KampConnectIdentityDbContext dbContext) : IUserR
     public Task<Role?> GetRoleByCodeAsync(string roleCode, CancellationToken ct = default) =>
         dbContext.Roles.FirstOrDefaultAsync(r => r.role_code == roleCode, ct);
 
+    public Task<Role?> GetRoleByIdAsync(int roleId, CancellationToken ct = default) =>
+        dbContext.Roles.FirstOrDefaultAsync(r => r.role_id == roleId, ct);
+
     public Task<bool> RoleExistsAsync(Guid userId, int roleId, int tenantId, CancellationToken ct = default) =>
         dbContext.UserRoles.AnyAsync(ur =>
             ur.user_id == userId &&

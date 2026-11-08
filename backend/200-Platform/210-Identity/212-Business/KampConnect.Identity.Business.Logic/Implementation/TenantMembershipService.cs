@@ -9,6 +9,7 @@ using KampConnect.Identity.Data.Entity.Roles;
 using KampConnect.Identity.Data.Entity.Tenant;
 using KampConnect.Identity.Data.Interface.Repository;
 using Microsoft.Extensions.Logging;
+using KampConnect.Shared.Contracts.Authorization;
 
 namespace KampConnect.Identity.Business.Logic.Implementation;
 
@@ -21,7 +22,7 @@ public class TenantMembershipService(
     public async Task<MembershipResult> AddOwnerAsync(int tenantId, Guid userId, CancellationToken ct = default)
     {
         // Owner rol id ophalen
-        const string OwnerRoleCode = RoleCodes.OrganisationAdmin;
+        const string OwnerRoleCode = RoleCodes.TenantAdmin;
 
         if (OwnerRoleCode == null)
         {
@@ -89,14 +90,24 @@ public class TenantMembershipService(
     public async Task<TenantsResult> AddTenant(int tenantId, string tenantName, string tenantSlug, CancellationToken ct = default)
     {
         var now = DateTime.UtcNow;
-        var tenantSnapshot = new TenantSnapshot
+        var existing = (await tenantSnapshotRepository.GetTenantsByIdAsync(new List<int> { tenantId }, ct)).FirstOrDefault();
+        if (existing is null)
         {
-            tenant_id = tenantId,
-            tenant_name = tenantName,
-            tenant_slug = tenantSlug,
-            last_synced_timestamp = now
-        };
-        await tenantSnapshotRepository.AddAsync(tenantSnapshot, ct);
+            var tenantSnapshot = new TenantSnapshot
+            {
+                tenant_id = tenantId,
+                tenant_name = tenantName,
+                tenant_slug = tenantSlug,
+                last_synced_timestamp = now
+            };
+            await tenantSnapshotRepository.AddAsync(tenantSnapshot, ct);
+        }
+        else
+        {
+            existing.tenant_name = tenantName;
+            existing.tenant_slug = tenantSlug;
+            existing.last_synced_timestamp = now;
+        }
         await userRepository.SaveChangesAsync(ct);
         logger.LogInformation("Tenant snapshot added with ID {TenantId}, Name {TenantName}, Slug {TenantSlug}", tenantId, tenantName, tenantSlug);
         return TenantsResult.Success(new List<TenantDto> { new TenantDto { TenantId = tenantId, TenantName = tenantName, TenantSlug = tenantSlug } });

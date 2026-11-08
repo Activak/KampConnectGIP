@@ -196,6 +196,7 @@ builder.Services.AddOpenIddict()
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddKampConnectAuthorization();
 builder.Services.AddKampConnectCors(builder.Configuration);
 
 // =====================================================================================

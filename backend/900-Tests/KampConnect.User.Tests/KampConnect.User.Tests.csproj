@@ -15,5 +15,6 @@
     <ProjectReference Include="..\..\200-Platform\230-User\232-Business\KampConnect.User.Business.Logic\KampConnect.User.Business.Logic.csproj" />
     <ProjectReference Include="..\..\200-Platform\230-User\232-Business\KampConnect.User.Business.Contracts\KampConnect.User.Business.Contracts.csproj" />
     <ProjectReference Include="..\..\200-Platform\230-User\231-Data\KampConnect.User.Data.Entity\KampConnect.User.Data.Entity.csproj" />
+    <ProjectReference Include="..\..\200-Platform\230-User\231-Data\KampConnect.User.Data.Interface\KampConnect.User.Data.Interface.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
-using KampConnect.User.Business.Contracts.ClassTypes;
+using System.ComponentModel;
+using KampConnect.User.Business.Contracts.ClassTypes.Results;
 using KampConnect.User.Business.Contracts.Interfaces;
 using KampConnect.User.Business.Contracts.Requests;
 using KampConnect.User.Business.Logic.Mapping;
@@ -22,6 +23,11 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
             return UserResult.Fail(UserError.UserAlreadyExists);
         }
 
+        if (!DateOnly.TryParse(request.BirthDate, out var birthDate))
+        {
+            return UserResult.Fail(UserError.InvalidBirthDate);
+        }
+
         var now = DateTime.UtcNow;
 
         // Nieuwe user aanmaken
@@ -30,6 +36,7 @@ public class UserService(IUserRepository userRepository, ILogger<UserService> lo
             auth_user_id = authUserId,
             first_name = request.FirstName,
             last_name = request.LastName,
+            birth_date = birthDate,
             preferred_language = request.PreferredLanguage,
             created_at = now,
             updated_at = now

@@ -9,6 +9,9 @@ public static class UserDataEx
     public static IServiceCollection AddUserData(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAddressRepository, AddressRepository>();
+        services.AddScoped<IFamilyRepository, FamilyRepository>();
+        services.AddScoped<IFamilyInviteRepository, FamilyInviteRepository>();
 
         return services;
     }

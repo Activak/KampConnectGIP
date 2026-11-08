@@ -1,4 +1,4 @@
-using KampConnect.User.Business.Contracts.ClassTypes;
+using KampConnect.User.Business.Contracts.ClassTypes.Results;
 using KampConnect.User.Business.Contracts.Requests;
 
 namespace KampConnect.User.Business.Contracts.Interfaces;

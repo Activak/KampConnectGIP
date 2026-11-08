@@ -1,10 +1,13 @@
-namespace KampConnect.User.Business.Contracts.ClassTypes;
+using KampConnect.User.Business.Contracts.ClassTypes.Dtos;
+
+namespace KampConnect.User.Business.Contracts.ClassTypes.Results;
 
 public enum UserError
 {
     None,
     UserNotFound,
-    UserAlreadyExists
+    UserAlreadyExists,
+    InvalidBirthDate
 }
 
 public record UserResult(

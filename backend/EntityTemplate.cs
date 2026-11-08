@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using KampConnect.Shared.Logging.Config.Tools;
 
-namespace KampConnect.Identity.Data.Entity.Client;
+namespace NAMESPACE;
 
 [Table("TABLE", Schema = "SCHEMA")]
 public class FILENAME

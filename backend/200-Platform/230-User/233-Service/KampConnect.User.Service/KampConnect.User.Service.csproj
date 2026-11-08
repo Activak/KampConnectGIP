@@ -10,6 +10,7 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\..\000-Shared\020-Helpers\022-Infrastructure\KampConnect.Shared.Infrastructure.Google\KampConnect.Shared.Infrastructure.Google.csproj" />
     <ProjectReference Include="..\..\232-Business\KampConnect.User.Business.Logic\KampConnect.User.Business.Logic.csproj" />
     <ProjectReference Include="..\..\232-Business\KampConnect.User.Business.Contracts\KampConnect.User.Business.Contracts.csproj" />
     <ProjectReference Include="..\..\231-Data\KampConnect.User.Data.Repository\KampConnect.User.Data.Repository.csproj" />

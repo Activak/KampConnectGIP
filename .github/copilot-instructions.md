@@ -5,6 +5,6 @@
 - Voor het KampConnectGIP-project: gevoelige waarden zoals wachtwoorden voor de testgebruiker in KampConnect.Identity.ClientRegistration mogen niet in appsettings.json/appsettings.Development.json staan, maar moeten via dotnet user-secrets worden ingesteld (Registration:TestUser:Password).
 - Voor het KampConnectGIP-project wordt PostgreSQL (via Npgsql.EntityFrameworkCore.PostgreSQL) gebruikt als databaseprovider voor de Tenant-service, en SQL Server voor de Identity-service.
 - Voor het KampConnectGIP-project moet het EF Core Design-package (Microsoft.EntityFrameworkCore.Design) ook aanwezig zijn in het startup-project (bv. KampConnect.Tenant.Service) naast het data-context project, anders faalt 'dotnet ef migrations add' met de foutmelding dat het startup project Microsoft.EntityFrameworkCore.Design niet referenceert.
-- Voor het KampConnectGIP-project: schrijf XML-documentatiecommentaar (/// summary enz.) in het Nederlands.
+- Voor het KampConnectGIP-project: gebruik geen XML-documentatiecommentaar (/// summary) maar korte, krachtige standaard-comments (//) waar nodig.
 - Voor het KampConnectGIP-project wil de gebruiker begeleid worden om ervan te leren: geef uitleg, hints en reviewvragen in plaats van zelf code te schrijven of bestanden aan te passen, tenzij de gebruiker er expliciet om vraagt. Geef verdere begeleiding in het Nederlands voor dit project.
 - Voor het KampConnectGIP-project wordt de frontend in React gebouwd (niet Razor Pages); de .NET-backend levert een API.

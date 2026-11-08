@@ -51,4 +51,14 @@ public class KampConnectIdentitySettings
 
     /// <summary>Link in de herstelmail. {0} wordt vervangen door het token.</summary>
     public string PasswordResetUrl { get; set; } = "https://kampconnect.be/reset-password?token={0}";
+
+    /// <summary>Geldigheid van een tenant-uitnodiging (dagen).</summary>
+    public int InvitationLifetimeDays { get; set; } = 7;
+
+    /// <summary>
+    /// Link in de uitnodigingsmail. {0} wordt vervangen door het token.
+    /// De frontend toont de uitnodiging (GET /api/invitations/by-token) en laat de gebruiker
+    /// aanvaarden (inloggen of registreren) of weigeren.
+    /// </summary>
+    public string InvitationUrl { get; set; } = "https://kampconnect.be/invitation?token={0}";
 }
