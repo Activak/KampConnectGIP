@@ -17,3 +17,5 @@ desktop.ini
 .env
 .env.*
 !.env.example
+
+*.zip
