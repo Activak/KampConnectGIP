@@ -10,7 +10,7 @@ public interface ICampRepository
 {
     public Task<Camp?> GetCampByIdAsync(Guid campId, CancellationToken ct = default);
 
-    public Task<List<Camp?>> GetCampsByTenantIdAsync(Guid tenantId, CancellationToken ct = default);
+    public Task<List<Camp>> GetCampsByTenantIdAsync(Guid tenantId, CancellationToken ct = default);
 
     public void Add(Camp camp);
 

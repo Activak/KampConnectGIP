@@ -1,3 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  </Project>
+  <ItemGroup>
+    <Folder Include="ClassTypes\" />
+    <Folder Include="Interfaces\" />
+    <Folder Include="Requests\" />
+  </ItemGroup>
+</Project>

@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using KampConnect.Camp.Data.Context.Implementation;
 using KampConnect.Camp.Data.Interface.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -14,17 +11,15 @@ public class CampRepository(KampConnectCampDbContext dbContext) : ICampRepositor
     public Task<Entity.Camps.Camp?> GetCampByIdAsync(Guid campId, CancellationToken ct = default) =>
          dbContext.Camps.FirstOrDefaultAsync(c => c.camp_id == campId, ct);
 
-    public Task<List<Entity.Camps.Camp?>> GetCampsByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
+    public Task<List<Entity.Camps.Camp>> GetCampsByTenantIdAsync(Guid tenantId, CancellationToken ct = default)
     {
-        var qurey = dbContext.Camps
+        var query = dbContext.Camps
             .AsNoTracking()
-            .Include(c => c.camp_id)
-            .WHe
+            .Where(c => c.tenant_id == tenantId);
+       
+        return query.ToListAsync(ct);
     }
 
-    public Task SaveChangesAsync(CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
-    }
+    public Task SaveChangesAsync(CancellationToken ct = default) => dbContext.SaveChangesAsync(ct);
 }
 
